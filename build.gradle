@@ -1,17 +1,43 @@
+def libVersion = null
+
 apply plugin: 'java'
 
 sourceCompatibility = 1.8
 
+def jarFile = null
+def home = null
+home = System.getenv('JCSP_HOME')
+if (home == null){
+  throw new GradleException('JCSP_HOME environment variable is not defined')
+}
+//println "JCSP home folder is $home"
+def currentLen = 100 // assume length of file name is less than 100 characters
+if ( new File(home).isDirectory()){
+  new File(home).eachFile { File f ->
+    def fName = f.name
+    //println "processing $fName"
+    if (fName =~ '^jcsp-.+jar$'){
+      def len = fName.length()
+      if (len <= currentLen) { // look for jar file with shortest name
+        libVersion = fName.substring(5, len-4)
+        jarFile = f.name
+        currentLen = len
+      }
+    }
+  }
+}
+if ( jarFile == null){
+  throw new GradleException('No jcsp library was found in $home')
+}
+println "using JCSP library $jarFile"
+
+def version = libVersion
+
 repositories {
-  maven{
-    url "https://dl.bintray.com/jonkerridge/jcsp"
- }
   jcenter()
 }
 
-
 dependencies {
-  compile 'jcsp:alpha-1.1.2'
-  testCompile 'jcsp-alpha-1.1.2'
-  testCompile group: 'junit', name: 'junit', version: '4.12'
+  compile fileTree(dir: "$home", include: ["$jarFile"])
+  compile group: 'junit', name: 'junit', version: '4.12'
 }
