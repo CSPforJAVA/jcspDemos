@@ -3,10 +3,14 @@ This bundle contains many demonstrations of the use of the JCSP (CSP for Java) l
 Please read the LICENCE as further use of the library implies acceptance of either of the licences (Apache 2.0 or
 GNU LPGL 2.1).
 
-It depends on a jar containing the JCSP core API obtainable at:
+It depends on the JCSP core API, the source for which is obtainable at:
 https://github.com/CSPforJAVA
 
-It also uses the junit Testing Framework.
+This project also uses the junit Testing Framework.
+
+To build a jar containing all dependencies, use
+
+gradle clean fatJar
 
 The documentation provided with the JCSP core API also contains many examples of the use of the components that make up
 the library.  These examples are available in the package jcspDemos.docExamples.
