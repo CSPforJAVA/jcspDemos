@@ -18,3 +18,11 @@ the library.  These examples are available in the package jcspDemos.docExamples.
 The other examples have a splash screen that explains the purpose of the demonstration.  These screens are provided
 in the package jcsp.userIO, which also provides some very simple command line interactions for the inputting of 
 values into applications. 
+
+Three examples are provided of the use of both networking packages (net and net2).  These are 
+contained in the packages raytrace, mandelbrot and jcspchat.  Mandelbrot is also provided as an example 
+that runs on a single node.
+
+In order to use the net versions it is necessary to run a channel name service.  
+This is available in package: jcsp.net.tcpip.TCPIPCNSServer
+
