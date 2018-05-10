@@ -17,30 +17,28 @@
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
 
-package jcspDemos.raytrace.net2;
+package jcspDemos.raytrace.net;
+
 
 
 import jcsp.lang.*;
-import jcsp.net2.NetChannel;
-import jcsp.net2.NetChannelInput;
-import jcsp.net2.NetChannelOutput;
-import jcsp.net2.Node;
-import jcsp.net2.tcpip.TCPIPNodeAddress;
-import jcsp.userIO.Ask;
-import jcsp.util.InfiniteBuffer;
-
-import java.io.IOException;
+import jcsp.net.*;
+import jcsp.net.cns.*;
+import jcsp.net.tcpip.*;
+import jcsp.util.*;
+import jcsp.userIO.*;
+import java.util.Random;
+import java.io.*;
 
 /**
  * @author Quickstone Technologies Limited
- * @author Jon Kerridge net2 version
  */
-public final class Worker implements CSProcess {
+public final class WorkerConst implements CSProcess {
 
 	private final ChannelInput fromFarmer;
 	private final ChannelOutput toHarvester;
 
-	private Worker (ChannelInput fromFarmer, ChannelOutput toHarvester) {
+	private WorkerConst (ChannelInput fromFarmer, ChannelOutput toHarvester) {
 		this.fromFarmer = fromFarmer;
 		this.toHarvester = toHarvester;
 	}
@@ -48,9 +46,10 @@ public final class Worker implements CSProcess {
 	public final void run () {
 		System.out.println ("Worker: started");
 		final ResultPacket[] results = new ResultPacket[Main.BUFFERING];
+		final Counter frameCounter = new Counter(), dataCounter = new Counter ();
 		for (int i = 0; i < Main.BUFFERING; i++) results[i] = new ResultPacket ();
 		int currentResult = 0;
-		final Counter frameCounter = new Counter (), dataCounter = new Counter ();
+		final int c = new Random ().nextInt ();
 		while (true) {
 			final ResultPacket result = results[currentResult];
 			if (++currentResult >= Main.BUFFERING) currentResult = 0;
@@ -68,33 +67,11 @@ public final class Worker implements CSProcess {
 			}
 			dataCounter.dataStart ();
 			int i = 0, j = workLength / 3, k = (j << 1);
-			final ImageDef image = work.image;
-			final double wh = (double)work.height, ww = (double)work.width;
 			for (int y = work.offset; y < work.height; y += work.step) {
-				final double _y = (double)y;
-				double left_x = (_y * (image.view_window_x4 - image.view_window_x1)) / wh + image.view_window_x1;
-				double left_y = (_y * (image.view_window_y4 - image.view_window_y1)) / wh + image.view_window_y1;
-				double left_z = (_y * (image.view_window_z4 - image.view_window_z1)) / wh + image.view_window_z1;
-				final double step_x = ((_y * (image.view_window_x3 - image.view_window_x2)) / wh + image.view_window_x2 - left_x) / ww;
-				final double step_y = ((_y * (image.view_window_y3 - image.view_window_y2)) / wh + image.view_window_y2 - left_y) / ww;
-				final double step_z = ((_y * (image.view_window_z3 - image.view_window_z2)) / wh + image.view_window_z2 - left_z) / ww;
 				for (int x = 0; x < work.width; x++) {
-					// trace the ray
-					int c = image.trace (
-						image.camera_x,
-						image.camera_y,
-						image.camera_z,
-						left_x - image.camera_x,
-						left_y - image.camera_y,
-						left_z - image.camera_z,
-						ImageDef.AMBIENT,
-						0);
 					result.color[i++] = (byte)(c >> 16);
 					result.color[j++] = (byte)(c >> 8);
 					result.color[k++] = (byte)c;
-					left_x += step_x;
-					left_y += step_y;
-					left_z += step_z;
 				}
 			}
 			frameCounter.click ();
@@ -136,7 +113,7 @@ public final class Worker implements CSProcess {
 			this.out = out;
 		}
 		public void run () {
-			final Alternative alt = new Alternative(new Guard[] { flush, in });
+			final Alternative alt = new Alternative (new Guard[] { flush, in });
 			while (true) {
 				if (alt.priSelect () == 0) {
 					flush.read ();
@@ -163,51 +140,52 @@ public final class Worker implements CSProcess {
 	}
 
 	public static final void main (String[] args) throws Exception {
-		TCPIPNodeAddress mainNodeAddress = null;
-		TCPIPNodeAddress workerNodeAddress = null;
-		String serverAddress = null;
-		System.out.println("Worker starting ...");
-    serverAddress = Ask.string ("Server address? : ");
-		mainNodeAddress = new TCPIPNodeAddress(serverAddress, 1000);
-    System.out.println ("Server running on " + mainNodeAddress.getIpAddress());
-    int port = Ask.Int("port to use on worker node >=2000", 2000, 9000);
-		if ( serverAddress.equals("127.0.0.1")){
-		  // loop back network ask for worker IP address
-      String workerAddress = Ask.string ("Worker address- 127.0.0.N st 1 < N < 255? : ");
-      workerNodeAddress = new TCPIPNodeAddress(workerAddress, port);
-    } else {  // find IP address of this node
-      workerNodeAddress = new TCPIPNodeAddress(port);
-    }
-		Node.getInstance().init(workerNodeAddress);
-		System.out.println ("Worker running on " + workerNodeAddress.getIpAddress());
-		// Establish the NET connections
-		final NetChannelOutput toHarvester = NetChannel.one2net (mainNodeAddress, 50);
-		final NetChannelOutput joinNetwork = NetChannel.one2net (mainNodeAddress, 51);
-		final NetChannelOutput leaveNetwork = NetChannel.one2net (mainNodeAddress, 52);
 
-		final NetChannelInput fromFarmer = NetChannel.net2one ();
+		// Get the command line
+		if (args.length != 1) {
+			Ask.app (
+				"Ray Tracer",
+				"Implements a basic ray-tracing algorithm incorporating reflection, refraction and texture mapped " +
+				"surfaces, distributed using a farmer/worker/harvester approach. This is a worker node. By specifying " +
+				"the address of a CNS server that the farmer/harvester registered with it can join an existing network." +
+				"This demonstration shows performance/scaleability using JCSP. Workers can join and leave at any time. " +
+				"To leave the network, press ENTER. Do not terminate the program with CTRL+C or the worker may not " +
+				"deregister itself with the farmer and cause a deadlock.");
+			Ask.addPrompt ("CNS address");
+			Ask.show ();
+			Node.getInstance ().init (new TCPIPNodeFactory (Ask.readStr ("CNS address")));
+		} else {
+			Node.getInstance ().init (new TCPIPNodeFactory (args[0]));
+		}
+
+		// Establish the NET connections
+		final NetChannelEndFactory factory = new UnacknowledgedNetChannelEndFactory ();
+		final NetChannelOutput toHarvester = factory.createOne2Net (CNS.resolve("org.jcsp.demos.raytrace.demux"));
+		final NetChannelOutput joinNetwork = CNS.createOne2Net ("org.jcsp.demos.raytrace.join");
+		final NetChannelOutput leaveNetwork = CNS.createOne2Net ("org.jcsp.demos.raytrace.leave");
+		final NetChannelInput fromFarmer = factory.createNet2One ();
 
 		System.out.println ("Worker: joining network");
-		joinNetwork.write (fromFarmer.getLocation ());
+		joinNetwork.write (fromFarmer.getChannelLocation ());
 
-		final One2OneChannel farmer2worker = Channel.one2one (new InfiniteBuffer()),
-							  worker2harvester = Channel.one2one (new InfiniteBuffer()),
+		final One2OneChannel farmer2worker = Channel.one2one (new InfiniteBuffer ()),
+							  worker2harvester = Channel.one2one (new InfiniteBuffer ()),
 							  flushSignal = Channel.one2one ();
 
-		Worker w = new Worker (farmer2worker.in (), worker2harvester.out ());
-		new Parallel(
+		WorkerConst w = new WorkerConst (farmer2worker.in (), worker2harvester.out ());
+		new Parallel (
 			new CSProcess[] {
-				w.new TerminatingIdentity(fromFarmer, farmer2worker.out ()),
+				w.new TerminatingIdentity (fromFarmer, farmer2worker.out ()),
 				w,
-				w.new FlushingIdentity(worker2harvester.in (), flushSignal.in (), toHarvester),
-				new CSProcess() {
+				w.new FlushingIdentity (worker2harvester.in (), flushSignal.in (), toHarvester),
+				new CSProcess () {
 					public void run () {
     					try {
     						System.in.read ();
     					} catch (IOException e) {
     					}
     					System.out.println ("Worker: leaving network");
-    					leaveNetwork.write (fromFarmer.getLocation ());
+    					leaveNetwork.write (fromFarmer.getChannelLocation ());
     					System.out.println ("Worker: flushing outstanding packets");
     					flushSignal.out ().write (null);
 					}

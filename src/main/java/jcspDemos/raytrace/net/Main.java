@@ -17,26 +17,22 @@
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
 
-package jcspDemos.raytrace.net2;
+package jcspDemos.raytrace.net;
 
 
-import jcsp.awt.ActiveCanvas;
-import jcsp.awt.ActiveFrame;
+
 import jcsp.lang.*;
-import jcsp.net2.*;
-import jcsp.net2.tcpip.TCPIPNodeAddress;
-import jcsp.util.InfiniteBuffer;
-import jcsp.util.OverWritingBuffer;
-
+import jcsp.awt.*;
+import jcsp.util.*;
+import jcsp.net.*;
+import jcsp.net.tcpip.*;
+import jcsp.net.cns.*;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
+import java.net.*;
+import java.awt.event.*;
 
 /**
  * @author Quickstone Technologies Limited
- * @author Jon Kerridge net2 version
  */
 public class Main {
 	
@@ -48,10 +44,10 @@ public class Main {
 	public static void main (String[] args) throws Exception {
 		
 		// Get the command line
+		String cnsServer = null;
 		int width = DEFAULT_WIDTH;
 		int height = DEFAULT_HEIGHT;
 		boolean fullScreen = false;
-		String mainIPAddress = null;
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals ("-width")) {
 				width = Integer.parseInt (args[++i]);
@@ -59,35 +55,49 @@ public class Main {
 				height = Integer.parseInt (args[++i]);
 			} else if (args[i].equals ("-fullscreen")) {
 				fullScreen = true;
-			} else if (args[i].equals ("-internal")){
-        mainIPAddress = "127.0.0.1";
+			} else {
+				cnsServer = args[i];
 			}
 		}
-    // create the main node
-    TCPIPNodeAddress mainNodeAddress = null;
-    if (mainIPAddress == null){  // creating node on real network
-      mainNodeAddress = new TCPIPNodeAddress(1000);
-    } else {  // loop back node
-      mainNodeAddress = new TCPIPNodeAddress(mainIPAddress, 1000);
-    }
-    Node.getInstance().init(mainNodeAddress);
-    System.out.println ("Server running on " + mainNodeAddress.getIpAddress());
+		if (cnsServer == null) {
+			/*Ask.app (
+				"Ray Tracer",
+				"Implements a basic ray-tracing algorithm incorporating reflection, refraction and texture mapped " +
+				"surfaces, distributed using a farmer/worker/harvester approach. This is the farmer and harvester " +
+				"implementation. A set of channels are registered with a CNS which one or more workers can use to " +
+				"join the network. This approach allows workers to dynamically join (and leave) to demonstrate " +
+				"the performance/scaleability as the network grows.");
+			Ask.addPrompt ("CNS address");
+			Ask.show ();*/
+            NodeKey key =
+              Node.getInstance().init(
+                new TCPIPAddressID(
+                  InetAddress.getLocalHost().getHostAddress(),
+                  TCPIPCNSServer.DEFAULT_CNS_PORT,
+                  true));
+			CNS.install(key);
+	        NodeAddressID cnsAddress = Node.getInstance().getNodeID().getAddresses()[0];
+	        CNSService.install(key, cnsAddress);
+		} else {
+			Node.getInstance ().init (new TCPIPNodeFactory (cnsServer));
+		}
+		
 		// Establish the NET channels
-		final NetAltingChannelInput workers2demux = NetChannel.net2one();  // vcn = 50
-		final NetAltingChannelInput workerJoin = NetChannel.net2one();  // vcn = 51
-		final NetAltingChannelInput workerLeave = NetChannel.net2one();  // vcn = 52
+		final NetAltingChannelInput workers2demux = CNS.createNet2One ("org.jcsp.demos.raytrace.demux");
+		final NetAltingChannelInput workerJoin = CNS.createNet2One ("org.jcsp.demos.raytrace.join");
+		final NetAltingChannelInput workerLeave = CNS.createNet2One ("org.jcsp.demos.raytrace.leave");
 		System.out.println ("Main: waiting for initial worker");
 		NetChannelLocation ncl = (NetChannelLocation)workerJoin.read ();
-		final NetChannelOutput[] toWorkers = new NetChannelOutput[] { NetChannel.one2net (ncl) };
+		final NetChannelOutput[] toWorkers = new NetChannelOutput [] { NetChannelEnd.createOne2Net (ncl) };
 		
 		// Widget control channels
 		final One2OneChannel frameControl = Channel.one2one ();
 							  
 		// Widget event channels
-		final One2OneChannel frameEvent = Channel.one2one (new OverWritingBuffer(10)),
-						      canvasEvent = Channel.one2one (new OverWritingBuffer(10)),
-						      mouseEvent = Channel.one2one (new OverWritingBuffer(1)),
-						      keyEvent = Channel.one2one (new OverWritingBuffer(10));
+		final One2OneChannel frameEvent = Channel.one2one (new OverWritingBuffer (10)),
+						      canvasEvent = Channel.one2one (new OverWritingBuffer (10)),
+						      mouseEvent = Channel.one2one (new OverWritingBuffer (1)),
+						      keyEvent = Channel.one2one (new OverWritingBuffer (10));
 		
 		// Graphics channels
         final Any2OneChannel toGraphics = Channel.any2one();
@@ -95,11 +105,11 @@ public class Main {
         
         // FWH network
         final One2OneChannel farmer2harvester = Channel.one2one (),
-        					  frameDemux[] = Channel.one2oneArray (BUFFERING, new InfiniteBuffer()),
+        					  frameDemux[] = Channel.one2oneArray (BUFFERING, new InfiniteBuffer ()),
         					  ui2farmer = Channel.one2one ();
 
         // Set up the canvas
-        final ActiveCanvas activeCanvas = new ActiveCanvas();
+        final ActiveCanvas activeCanvas = new ActiveCanvas ();
         activeCanvas.addComponentEventChannel (canvasEvent.out ());
         activeCanvas.setGraphicsChannels(toGraphics.in(), fromGraphics.out());
         activeCanvas.setSize(width, height);
@@ -107,7 +117,7 @@ public class Main {
         activeCanvas.addKeyEventChannel (keyEvent.out ());
 
         // Set up the frame
-        final ActiveFrame activeFrame = new ActiveFrame(frameControl.in (), frameEvent.out (), "Ray Tracing Demonstration");
+        final ActiveFrame activeFrame = new ActiveFrame (frameControl.in (), frameEvent.out (), "Ray Tracing Demonstration");
         activeFrame.add (activeCanvas);
         
         // Try and go full screen ?
@@ -147,12 +157,12 @@ public class Main {
         }
         
         // Widget event ALT
-        final Alternative alt = new Alternative(new Guard[] { frameEvent.in (), canvasEvent.in (), mouseEvent.in (), keyEvent.in () });
+        final Alternative alt = new Alternative (new Guard[] { frameEvent.in (), canvasEvent.in (), mouseEvent.in (), keyEvent.in () });
 		
-		final Parallel par = new Parallel(new CSProcess[] {
+		final Parallel par = new Parallel (new CSProcess[] {
 			activeCanvas,
 			activeFrame,
-			new CSProcess() {
+			new CSProcess () {
 				public void run () {
 					while (true) {
 						ComponentEvent e;
