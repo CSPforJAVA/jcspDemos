@@ -33,21 +33,30 @@ import jcsp.userIO.Ask;
  * @author P.H. Welch (non-networked original code)
  * @author Jon Kerridge - net2 version
  */
-public class MandelWorker implements CSProcess {
+public class MandelWorkerNet2 implements CSProcess {
 
-    private static final int NUM_CORES = 4;
+    private static final int NUM_THREADS = 10;
 
-    public static final String TITLE = "Mandelbrot Set (distributed)";
+    public static final String TITLE = "Mandelbrot Set (net2 version)";
+    public static final String DESCR =
+      "Mandelbrot worker process. Please give the IP address of the machine running the main program interface. " +
+      "If the worker is running on the same machine as the main process and other workers" +
+        " then the port number must be different" +
+      "from any other ports used.  The main process uses port 1000 by default." +
+        "If the worker is running on a different machine any port number can be used." +
+      "When using a loopback IP address then the port number is irrelevant, it defaults to 2000" +
+      "Each worker IP address and the main process must use different IP addresses such that" +
+      "a worker must have and IP address of the form 127.0.0.N  s.t. 1 < N < 255";
 
     private final SharedChannelOutput toFarmer;
     private final NetChannelInput fromFarmer;
     private final NetLocation id;
     private final SharedChannelOutput toHarvester;
 
-    private MandelWorker(final SharedChannelOutput toFarmer,
-                         final NetChannelInput fromFarmer,
-                         final NetChannelLocation id,
-                         final SharedChannelOutput toHarvester) {
+    private MandelWorkerNet2(final SharedChannelOutput toFarmer,
+                             final NetChannelInput fromFarmer,
+                             final NetChannelLocation id,
+                             final SharedChannelOutput toHarvester) {
         this.toFarmer = toFarmer;
         this.fromFarmer = fromFarmer;
         this.id = id;
@@ -102,22 +111,42 @@ public class MandelWorker implements CSProcess {
     public static void main(String[] args) throws Exception {
 
         // Start up
+      String mainIPAddress = "127.0.0.1";
+      String workerIPAddress = "127.0.0.2";
+        int workerPortNumber = 2000;
+        if (args.length == 0) {
+          Ask.app(TITLE, DESCR);
+          Ask.addPrompt("Main IP address");
+          Ask.addPrompt("Worker Port Number");
+          Ask.show();
+          mainIPAddress = Ask.readStr("Main IP address");
+          workerPortNumber = Ask.readInt("Worker Port Number");
+          Ask.blank();
+        }
+        else { // assume the single arg is -internal)
+          if (args[0] != "-internal")  {
+            System.out.println("Not found expected arg[0] value: -internal ");
+            System.exit(0);
+          } else {
+            Ask.app(TITLE, DESCR);
+            Ask.addPrompt("Worker IP address");
+            Ask.show();
+            workerIPAddress = Ask.readStr("Worker IP address");
+            Ask.blank();
+          }
+        }
+
         // create Worker node instance
-        String mainIPAddress;
         TCPIPNodeAddress workerNodeAddress = null;
 
-        if ((args.length == 0) || (args[0] == "-internal")) {
-            mainIPAddress = "127.0.0.1";
-            String workerIPAddress = Ask.string("Worker IP Address (127.0.0.N  s.t. 1 < N < 255)? ");
-            workerNodeAddress = new TCPIPNodeAddress(workerIPAddress, 3000);
+        if (mainIPAddress == "127.0.0.1") {
+            workerNodeAddress = new TCPIPNodeAddress(workerIPAddress, 2000);
         } else {
             // operating over a real network
-            mainIPAddress = Ask.string("Main IP Address? ");
-            // create local network node address at most global IP address
-            workerNodeAddress = new TCPIPNodeAddress(3000);
+            workerNodeAddress = new TCPIPNodeAddress(workerPortNumber);
         }
         // create main process node address
-        TCPIPNodeAddress mainNodeAddress = new TCPIPNodeAddress(mainIPAddress, 3000);
+        TCPIPNodeAddress mainNodeAddress = new TCPIPNodeAddress(mainIPAddress, 1000);
         // create the local worker node
         Node.getInstance().init(workerNodeAddress);
 
@@ -132,9 +161,9 @@ public class MandelWorker implements CSProcess {
         System.out.println("Ready");
 
         // Create some workers
-        CSProcess workers[] = new CSProcess[NUM_CORES + 1];
+        CSProcess workers[] = new CSProcess[NUM_THREADS];
         for (int i = 0; i < workers.length; i++) {
-            workers[i] = new MandelWorker(toFarmer, fromFarmer, fromFarmerLocation, toHarvester);
+            workers[i] = new MandelWorkerNet2(toFarmer, fromFarmer, fromFarmerLocation, toHarvester);
         }
         new Parallel(workers).run();
 

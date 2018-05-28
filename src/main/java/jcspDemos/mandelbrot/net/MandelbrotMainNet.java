@@ -34,17 +34,18 @@ import java.net.*;
  * @author Quickstone Technologies Limited
  * @author P.H. Welch (non-networked original code)
  */
-public class MandelbrotMain {
+public class MandelbrotMainNet {
 
-  public static final String TITLE = "Mandelbrot Set (distributed)";
+  public static final String TITLE = "Mandelbrot Set (net)";
   public static final String DESCR =
-  	"Demonstates a distributed farmer/worker/harvester parallelisation. The farmer and harvestor processes " +
-  	"will run on this JVM. Workers can run on this machine or elsewhere to generate the actual image.";
+  	"Demonstates a distributed farmer/worker/harvester parallelisation. \nThe farmer and harvestor processes " +
+  	"will run on this JVM. \nWorkers can run on this machine or elsewhere to generate the actual image.";
 
   private static final int DEFAULT_WIDTH = 640, DEFAULT_HEIGHT = 480;
 
   public static void main (String[] args) throws Exception {
 
+		System.out.println(DESCR);
 	// Get arguments
 	String cnsServer = null;
 	int width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT;
@@ -71,7 +72,7 @@ public class MandelbrotMain {
 		Node.getInstance ().init (new TCPIPNodeFactory (cnsServer));
 	}
 
-	final ActiveClosingFrame activeClosingFrame = new ActiveClosingFrame ("Distributed Mandelbrot");
+	final ActiveClosingFrame activeClosingFrame = new ActiveClosingFrame ("Distributed Mandelbrot - net version");
     final ActiveFrame activeFrame = activeClosingFrame.getActiveFrame ();
     activeFrame.setSize (width, height);
 

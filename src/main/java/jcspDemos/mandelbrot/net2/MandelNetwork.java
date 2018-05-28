@@ -71,7 +71,7 @@ class MandelNetwork implements CSProcess {
         final One2OneChannel farmer2harvester = Channel.one2one();
         final One2OneChannel harvester2farmer = Channel.one2one();
         // create net channels used by remote worker processes at vcn 100 (farmer) and 101 (harvester)
-        // the node has been previously created in MandelbrotMain
+        // the node has been previously created in MandelbrotMainNet
         final NetAltingChannelInput workers2farmer = NetChannel.numberedNet2One(100);
         final NetAltingChannelInput workers2harvester = NetChannel.numberedNet2One(101);
 

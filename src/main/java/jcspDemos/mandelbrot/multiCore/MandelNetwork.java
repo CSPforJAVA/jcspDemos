@@ -31,7 +31,7 @@ import java.awt.*;
  */
 class MandelNetwork implements CSProcess {
 
-    private final int nWorkers = 10;
+    private final int nWorkers = 8;
 
     private final ActiveCanvas activeCanvas;
     private final MandelControl mandelControl;

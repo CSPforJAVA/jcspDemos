@@ -31,23 +31,23 @@ import jcsp.userIO.*;
  * @author Quickstone Technologies Limited
  * @author P.H. Welch (non-networked original code)
  */
-public class MandelWorker implements CSProcess {
+public class MandelWorkerNet implements CSProcess {
 
   private static final int NUM_THREADS = 10;
 
-  public static final String TITLE = "Mandelbrot Set (distributed)";
+  public static final String TITLE = "Mandelbrot Set (net version)";
   public static final String DESCR =
-  	"Mandelbrot worker process. Please give the name of the machine running the main program interface.";
+  	"Mandelbrot worker process. Please give the IP address of the machine running the main program interface.";
 
   private final SharedChannelOutput toFarmer;
   private final NetChannelInput fromFarmer;
   private final NetChannelLocation id;
   private final SharedChannelOutput toHarvester;
 
-  private MandelWorker (final SharedChannelOutput toFarmer,
-                         final NetChannelInput fromFarmer,
-                         final NetChannelLocation id,
-                         final SharedChannelOutput toHarvester) {
+  private MandelWorkerNet(final SharedChannelOutput toFarmer,
+                          final NetChannelInput fromFarmer,
+                          final NetChannelLocation id,
+                          final SharedChannelOutput toHarvester) {
     this.toFarmer = toFarmer;
     this.fromFarmer = fromFarmer;
     this.id = id;
@@ -102,7 +102,7 @@ public class MandelWorker implements CSProcess {
   public static void main (String[] args) throws Exception {
 
   	// Start up
-  	if (args.length == 0) {
+      if (args.length == 0) {
         Ask.app (TITLE, DESCR);
         Ask.addPrompt ("CNS Address");
         Ask.show ();
@@ -124,7 +124,7 @@ public class MandelWorker implements CSProcess {
   	// Create some workers
   	CSProcess workers[] = new CSProcess[NUM_THREADS];
   	for (int i = 0; i < workers.length; i++) {
-  		workers[i] = new MandelWorker (toFarmer, fromFarmer, id, toHarvester);
+  		workers[i] = new MandelWorkerNet(toFarmer, fromFarmer, id, toHarvester);
   	}
   	new Parallel (workers).run ();
 
