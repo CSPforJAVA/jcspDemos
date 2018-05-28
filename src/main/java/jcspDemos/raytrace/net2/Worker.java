@@ -170,7 +170,7 @@ public final class Worker implements CSProcess {
     serverAddress = Ask.string ("Server address? : ");
 		mainNodeAddress = new TCPIPNodeAddress(serverAddress, 1000);
     System.out.println ("Server running on " + mainNodeAddress.getIpAddress());
-    int port = Ask.Int("port to use on worker node >=2000", 2000, 9000);
+    int port = Ask.Int("port to use on worker node >=2000 ? ", 2000, 9000);
 		if ( serverAddress.equals("127.0.0.1")){
 		  // loop back network ask for worker IP address
       String workerAddress = Ask.string ("Worker address- 127.0.0.N st 1 < N < 255? : ");
