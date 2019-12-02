@@ -20,3 +20,5 @@ The Receiver process MUST be started before the Sender process.
 
 It should be noted that in the Run definitions there are two versions of the Net Channel declarations.
 The active ones work correctly.  If the ones commented out are used instead, then the processes will fail.
+
+The code works with jcsp-1.1.0 and has been tested with Java versions from 6 to 13 and presumably versions after 13.
