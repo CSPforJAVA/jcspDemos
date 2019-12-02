@@ -1,0 +1,22 @@
+These two processes can be used to demonstrate the ability of the JCSP library to
+automatically load classes across a network when one of the nodes does not have
+access to all the class definitions.
+
+The application uses the concept of CodeLoadingFilters on Net Channels.
+
+A node on a network can request class files from previous nodes in the sequence of
+net channels that connect the processes on the nodes.  It does this automatically.
+There has to be a direct line of connection between the loading node and the responding one.
+There is no capability to go for a general hunt for a class file.  It may be that the
+required reverse channel definitions are not all defined but in this case the required reverse
+channels are created automatically.
+
+The examples have String literals that define the IP addresses of the nodes.  If you are using
+codes then you will have to change these IP addresses accordingly.  The Receiving and Sending
+processes must be defined in completely separate projects so that there is no chance the Receiver has
+access to the class files for ObjectA and ObjectB.
+
+The Receiver process MUST be started before the Sender process.
+
+It should be noted that in the Run definitions there are two versions of the Net Channel declarations.
+The active ones work correctly.  If the ones commented out are used instead, then the processes will fail.
