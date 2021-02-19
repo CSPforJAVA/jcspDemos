@@ -5,7 +5,7 @@ repositories {
   maven { url  'https://jitpack.io' }
   mavenCentral()
 }
-
+// make sure the documentation is downloaded from JitPack
 idea {
   module {
     downloadJavadoc = true

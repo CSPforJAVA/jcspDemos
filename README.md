@@ -8,9 +8,22 @@ https://github.com/CSPforJAVA
 
 This project also uses the junit Testing Framework.
 
-To build a jar containing all dependencies, use
+To build the demonstrations download the source from
+https://github.com/CSPforJAVA/jcspDemos 
 
-gradle clean fatJar
+The build.gradle file will build using the JCSP library version 1.1.2 that uses
+is downloaded from JitPack: 
+<pre>
+repositories {
+    ...
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.CSPforJAVA:jcsp:1.1.2'
+}
+</pre>
+
 
 The documentation provided with the JCSP core API also contains many examples of the use of the components that make up
 the library.  These examples are available in the package jcspDemos.docExamples.
