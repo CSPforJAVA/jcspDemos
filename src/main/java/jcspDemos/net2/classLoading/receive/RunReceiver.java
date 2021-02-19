@@ -1,4 +1,4 @@
-package Receiver;
+package jcspDemos.net2.classLoading.receive;
 
 import jcsp.lang.CSProcess;
 import jcsp.net2.NetChannel;
@@ -21,4 +21,5 @@ public class RunReceiver {
 
         receive.run();
     }
+
 }

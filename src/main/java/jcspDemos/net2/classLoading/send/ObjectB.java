@@ -1,4 +1,4 @@
-package Sender;
+package jcspDemos.net2.classLoading.send;
 
 import java.io.Serializable;
 
@@ -15,3 +15,4 @@ public class ObjectB implements Serializable {
                 '}';
     }
 }
+

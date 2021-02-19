@@ -1,4 +1,4 @@
-package Sender;
+package jcspDemos.net2.classLoading.send;
 
 import jcsp.lang.CSProcess;
 import jcsp.net2.NetChannel;
