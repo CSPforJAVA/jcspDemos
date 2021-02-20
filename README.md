@@ -8,10 +8,10 @@ https://github.com/CSPforJAVA
 
 This project also uses the junit Testing Framework.
 
-To build the demonstrations download the source from
+To build the demonstrations download the JCSP Demonstration source from
 https://github.com/CSPforJAVA/jcspDemos 
 
-The build.gradle file will build using the JCSP library version 1.1.2 that uses
+The build.gradle file will build using the JCSP library version 1.1.2 that 
 is downloaded from JitPack: 
 <pre>
 repositories {
