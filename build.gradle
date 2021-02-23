@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 
 repositories {
-  maven { url  'https://jitpack.io' }
+  mavenLocal()
   mavenCentral()
 }
 // make sure the documentation is downloaded from JitPack
@@ -13,6 +13,6 @@ idea {
 }
 
 dependencies {
-  compile 'com.github.CSPforJAVA:jcsp:1.1.2'
+  compile 'cspforjava:jcsp:1.1.2'
   compile group: 'junit', name: 'junit', version: '4.12'
 }

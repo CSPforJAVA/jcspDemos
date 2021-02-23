@@ -12,11 +12,13 @@ To build the demonstrations download the JCSP Demonstration source from
 https://github.com/CSPforJAVA/jcspDemos 
 
 The build.gradle file will build using the JCSP library version 1.1.2 that 
-is downloaded from JitPack: 
+is downloaded from https://github.com/CSPforJAVA/jcsp/releases/tag/1.1.2 by extracting
+the contents of the jcsp-1.1.2-binaries.zip file into the Maven local repository located at 
+%user-dir%/.m2/repository/cspforjava/jcsp/1.1.2: 
 <pre>
 repositories {
     ...
-    maven { url 'https://jitpack.io' }
+    mavenLocal
 }
 
 dependencies {
