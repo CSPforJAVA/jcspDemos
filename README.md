@@ -1,4 +1,5 @@
-This bundle contains many demonstrations of the use of the JCSP (CSP for Java) library.
+This bundle contains many demonstrations of the use of the JCSP (CSP for Java) 
+library.  
 
 Please read the LICENCE as further use of the library implies acceptance of either of the licences (Apache 2.0 or
 GNU LPGL 2.1).
@@ -6,12 +7,16 @@ GNU LPGL 2.1).
 It depends on the JCSP core API, the source for which is obtainable at:
 https://github.com/CSPforJAVA
 
+The project was built using Intellij and a clone of the repository will obtain all the required 
+definition files.
+For other IDEs or just to get the sources use the release 1.1.8
+
 This project also uses the junit Testing Framework.
 
 To build the demonstrations download the JCSP Demonstration source from
 https://github.com/CSPforJAVA/jcspDemos 
 
-The build.gradle file will build using the JCSP library version 1.1.8 that 
+The build.gradle file will build using the JCSP library version 1.1.8, using Java 8, that 
 is downloaded from https://github.com/CSPforJAVA/jcsp/releases/tag/1.1.8 by extracting
 the contents of the jcsp-1.1.8-binaries.zip file into the Maven local repository located at 
 %user-dir%/.m2/repository/cspforjava/jcsp/1.1.8: 
