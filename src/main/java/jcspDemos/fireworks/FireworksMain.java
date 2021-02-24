@@ -35,7 +35,7 @@ import jcsp.userIO.Ask;
  * @author P.H. Welch
  */
 
-public class FireworksMain extends ActiveApplet {
+public class FireworksMain extends ActiveApplet   {
 
   public static final String TITLE = "Fireworks";
   public static final String DESCR =
