@@ -13,6 +13,6 @@ idea {
 }
 
 dependencies {
-  compile 'cspforjava:jcsp:1.1.2'
+  compile 'cspforjava:jcsp:1.1.8'
   compile group: 'junit', name: 'junit', version: '4.12'
 }
