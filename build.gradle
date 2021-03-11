@@ -1,18 +1,20 @@
 apply plugin: 'java'
-apply plugin: 'idea'
 
 repositories {
-  mavenLocal()
   mavenCentral()
-}
-// make sure the documentation is downloaded
-idea {
-  module {
-    downloadJavadoc = true
+  maven { // to download the CSPforJAVA.jcsp library
+    name = "GitHubPackages"
+    url = "https://maven.pkg.github.com/CSPforJAVA/jcsp"
+    // must have read artifacts credentials with GitHub in order to download
+    // even though the repository is publicly accessible
+    credentials {
+      username = project.findProperty("gpr.user")
+      password = project.findProperty("gpr.key")
+    }
   }
 }
 
 dependencies {
-  compile 'cspforjava:jcsp:1.1.8'
-  compile group: 'junit', name: 'junit', version: '4.12'
+  compile 'cspforjava:jcsp:1.1.9'
+  compile group: 'junit', name: 'junit', version: '4.13.1'
 }

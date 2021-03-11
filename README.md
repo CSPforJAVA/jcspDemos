@@ -8,29 +8,12 @@ It depends on the JCSP core API, the source for which is obtainable at:
 https://github.com/CSPforJAVA
 
 The project was built using Intellij and a clone of the repository will obtain all the required 
-definition files.
-For other IDEs or just to get the sources use the release 1.1.8
+files and the codes can be built using the build.gradle definition..
 
 This project also uses the junit Testing Framework.
 
 To build the demonstrations download the JCSP Demonstration source from
 https://github.com/CSPforJAVA/jcspDemos 
-
-The build.gradle file will build using the JCSP library version 1.1.8, using Java 8, that 
-is downloaded from https://github.com/CSPforJAVA/jcsp/releases/tag/1.1.8 by extracting
-the contents of the jcsp-1.1.8-binaries.zip file into the Maven local repository located at 
-%user-dir%/.m2/repository/cspforjava/jcsp/1.1.8: 
-<pre>
-repositories {
-    ...
-    mavenLocal
-}
-
-dependencies {
-    implementation 'cspforjava:jcsp:1.1.8'
-}
-</pre>
-
 
 The documentation provided with the JCSP core API also contains many examples of the use of the components that make up
 the library.  These examples are available in the package jcspDemos.docExamples.
