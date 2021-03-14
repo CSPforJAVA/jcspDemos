@@ -29,3 +29,34 @@ that runs on a single node.
 In order to use the net versions it is necessary to run a channel name service.  
 This is available in package: jcsp.net.tcpip.TCPIPCNSServer
 
+In order to use the jcsp library the following are required in the gradle.build file.
+<pre>
+repositories {
+  mavenCentral()
+  maven { // to download the CSPforJAVA.jcsp library
+    name = "GitHubPackages"
+    url = "https://maven.pkg.github.com/CSPforJAVA/jcsp"
+    credentials {
+      username = project.findProperty("gpr.user")
+      password = project.findProperty("gpr.key")
+    }
+  }
+}
+
+dependencies {
+  compile 'cspforjava:jcsp:1.1.9'
+}
+</pre>
+
+**Please note**
+
+In order to download Github Packages a user requires to have a Github Personal Access Token.  
+See https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
+
+A gradle.properties file is required at the same directory level as the build.gradle file
+that contains
+
+<pre>
+gpr.user=userName
+gpr.key=userPersonalAccessToken
+</pre>
