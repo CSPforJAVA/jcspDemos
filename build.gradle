@@ -2,15 +2,15 @@ apply plugin: 'java'
 
 repositories {
   mavenCentral()
-  mavenLocal() // for testing of dependencies
-//  maven { // to download the CSPforJAVA.jcsp library
-//    name = "GitHubPackages"
-//    url = "https://maven.pkg.github.com/CSPforJAVA/jcsp"
-//    credentials {
-//      username = project.findProperty("gpr.user")
-//      password = project.findProperty("gpr.key")
-//    }
-//  }
+//  mavenLocal() // for testing of dependencies
+  maven { // to download the CSPforJAVA.jcsp library
+    name = "GitHubPackages"
+    url = "https://maven.pkg.github.com/CSPforJAVA/jcsp"
+    credentials {
+      username = project.findProperty("gpr.user")
+      password = project.findProperty("gpr.key")
+    }
+  }
 }
 
 dependencies {
