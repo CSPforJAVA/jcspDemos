@@ -1,5 +1,10 @@
 apply plugin: 'java'
 
+String propertyFileName = "C:/Github/gradle.properties"
+File propsFile = new File(propertyFileName)
+Properties props = new Properties()
+props.load(propsFile.newDataInputStream())
+
 repositories {
   mavenCentral()
 //  mavenLocal() // for testing of dependencies
@@ -7,9 +12,11 @@ repositories {
     name = "GitHubPackages"
     url = "https://maven.pkg.github.com/CSPforJAVA/jcsp"
     credentials {
-      username = project.findProperty("gpr.user")
-      password = project.findProperty("gpr.key")
-    }
+//      if using a gradle.properties file within project structure
+//            username = project.findProperty("gpr.user")
+//            password = project.findProperty("gpr.key")
+      username = props.getProperty("gpr.user")
+      password = props.getProperty("gpr.key")    }
   }
 }
 
